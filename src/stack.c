@@ -28,6 +28,10 @@ StackStatus_t stack_destroy(Stack_t *stack){
     return STACK_NULL_POINTER;
   }
 
+  if (stack->data == NULL) {
+    return STACK_MEMORY_ERROR; // Stack data pointer is NULL
+  }
+
   stack_clear(stack);
   stack->capacity = 0; // Set capacity to 0 to avoid dangling pointer
   stack->size = 0; // Set size to 0 to avoid dangling pointer

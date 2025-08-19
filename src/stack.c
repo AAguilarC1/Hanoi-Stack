@@ -1,24 +1,27 @@
 #include "stack.h"
 
-Stack_t *stack_create(size_t capacity) {
-  if (capacity == 0 || capacity > SIZE_MAX) {
-    return NULL; // Invalid capacity
+Stack_t stack_create(size_t capacity) {
+  Stack_t stack = {0};
+
+  if (capacity <= 0 || capacity > SIZE_MAX) {
+    return (Stack_t){
+      .data = NULL,
+      .size = 0,
+      .capacity = 0
+    }; // Invalid capacity or too large for memory allocation
   }
 
-  Stack_t *stack = (Stack_t *)malloc(sizeof(Stack_t));
-
-  if (stack == NULL) {
-    return NULL; // Memory allocation failed  
+  stack.data = (uint8_t *)calloc(capacity, sizeof(uint8_t));
+  if (stack.data == NULL) {
+    return (Stack_t){
+      .data = NULL,
+      .size = 0,
+      .capacity = 0
+    }; // Memory allocation failed
   }
 
-  stack->data = (uint8_t *)calloc(capacity, sizeof(uint8_t));
-  if (stack->data == NULL) {
-    free(stack);
-    return NULL; // Memory allocation failed
-  }
-
-  stack->size = 0;
-  stack->capacity = capacity;
+  stack.size = 0;
+  stack.capacity = capacity;
 
   return stack;
 }

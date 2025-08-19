@@ -28,7 +28,7 @@ enum StackStatus {
 };
 typedef enum StackStatus StackStatus_t;
 
-Stack_t *stack_create(size_t capacity);
+Stack_t stack_create(size_t capacity);
 StackStatus_t stack_destroy(Stack_t *stack);
 StackStatus_t stack_clear(Stack_t *stack);
 

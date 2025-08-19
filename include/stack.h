@@ -22,7 +22,9 @@ enum StackStatus {
   STACK_MEMORY_ERROR = -4,
   STACK_NULL_POINTER = -5,
   STACK_UNDERFLOW = -6,
-  STACK_OVERFLOW = -7
+  STACK_OVERFLOW = -7,
+  STACK_INVALID_CAPACITY = -8,
+  STACK_OUT_OF_BOUNDS = -9
 };
 typedef enum StackStatus StackStatus_t;
 

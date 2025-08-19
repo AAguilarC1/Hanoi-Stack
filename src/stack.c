@@ -229,38 +229,28 @@ int stack_peek(Stack_t *stack, uint8_t *value){
   return STACK_OK;
 }
 
-StackStatus_t stack_get_size(Stack_t *stack, size_t *size){
+size_t stack_get_size(Stack_t *stack){
   if (stack == NULL) {
-    return STACK_NULL_POINTER; // Stack pointer is NULL
+    return 0;// Stack pointer is NULL
   }
-  
+
   if (stack->data == NULL) {
-    return STACK_MEMORY_ERROR; // Stack data pointer is NULL
+    return 0; // Stack data pointer is NULL
   }
 
-  if (size == NULL) {
-    return STACK_NULL_POINTER; // Size pointer is NULL
-  }
-
-  *size = stack->size; // Get the size of the stack
-  return STACK_OK;
+  return stack->size; // Get the size of the stack
 }
 
-StackStatus_t stack_get_capacity(Stack_t *stack, size_t *capacity){
+size_t stack_get_capacity(Stack_t *stack){
   if (stack == NULL) {
-    return STACK_NULL_POINTER; // Stack pointer is NULL
+    return 0; // Stack pointer is NULL
   }
   
   if (stack->data == NULL) {
-    return STACK_MEMORY_ERROR; // Stack data pointer is NULL
+    return 0; // Stack data pointer is NULL
   }
 
-  if (capacity == NULL) {
-    return STACK_NULL_POINTER; // Capacity pointer is NULL
-  }
-
-  *capacity = stack->capacity; // Get the capacity of the stack
-  return STACK_OK;
+  return stack->capacity; // Get the capacity of the stack
 }
 
 StackStatus_t stack_print(Stack_t *stack){

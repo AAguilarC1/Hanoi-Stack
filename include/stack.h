@@ -40,9 +40,8 @@ StackStatus_t stack_push(Stack_t *stack, uint8_t value);
 StackStatus_t stack_pop(Stack_t *stack, uint8_t *value);
 int stack_peek(Stack_t *stack, uint8_t *value);
 
-
-StackStatus_t stack_get_size(Stack_t *stack, size_t *size);
-StackStatus_t stack_get_capacity(Stack_t *stack, size_t *capacity);
+size_t stack_get_size(Stack_t *stack);
+size_t stack_get_capacity(Stack_t *stack);
 
 StackStatus_t stack_print(Stack_t *stack);
 

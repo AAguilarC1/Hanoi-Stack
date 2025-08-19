@@ -36,14 +36,13 @@ StackStatus_t stack_destroy(Stack_t *stack){
   }
 
   stack_clear(stack);
-  stack->capacity = 0; // Set capacity to 0 to avoid dangling pointer
-  stack->size = 0; // Set size to 0 to avoid dangling pointer
-
   free(stack->data);
-  stack->data = NULL; // Set data pointer to NULL to avoid dangling pointer
-
-  free(stack);
-  stack = NULL; // Set pointer to NULL to avoid dangling pointer
+  
+  *stack = (Stack_t){
+    .data = NULL,
+    .size = 0,
+    .capacity = 0
+  }; // Reset stack to default state
 
   return STACK_OK;
 }
@@ -117,8 +116,8 @@ StackStatus_t stack_clear(Stack_t *stack){
 StackStatus_t stack_push(Stack_t *stack, uint8_t value){
   if (stack == NULL) {
     return STACK_NULL_POINTER; // Stack pointer is NULL
-  }
-  
+  }  
+
   if (stack->data == NULL) {
     return STACK_MEMORY_ERROR; // Stack data pointer is NULL
   }
@@ -262,11 +261,11 @@ StackStatus_t stack_print(Stack_t *stack){
     return STACK_MEMORY_ERROR; // Stack data pointer is NULL
   }
 
-  printf("Stack size: %zu\n", stack->size);
+  printf("Stack size: %lu \n", stack_get_size(stack));
   printf("Stack capacity: %zu\n", stack->capacity);
   printf("Stack contents: ");
   
-  for (size_t i = 0; i < stack->size; i++) {
+  for (size_t i = 0; i < stack_get_size(stack); i++) {
     printf("%d ", stack_get_at_index(stack, i));
   }
   

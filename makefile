@@ -44,7 +44,7 @@ $(OBJS): $(BUILD_DIR)/%.o : $(SRC_DIR)/%.c
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 	
-$(TEST_TARGET): $(OBJS) $(CPP_OBJS)
+$(TEST_TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -I$(TESTS_INC_DIR) -I$(INC_DIR) $(filter-out build/main.o, $(OBJS)) $(TEST_SRC) -o $@ -lcunit $(LDFLAGS)
 
 all : build $(TARGET)
@@ -52,7 +52,7 @@ all : build $(TARGET)
 MAKE_DIRS :
 	@mkdir -p $(DIRS)
 
-build : MAKE_DIRS $(OBJS) $(CPP_OBJS)
+build : MAKE_DIRS $(OBJS)
 
 check : all
 	 valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes $(TARGET)
@@ -77,7 +77,6 @@ debug: all
 	 gdb $(TARGET)
 
 clean :
-	$(RM) $(CPP_OBJS)
 	$(RM) $(OBJS)
 	$(RM) $(BIN_DIR)/*
 	$(RM) $(DATA_DIR)/cachegrind*

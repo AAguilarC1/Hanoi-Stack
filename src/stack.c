@@ -46,10 +46,8 @@ StackStatus_t stack_destroy(Stack_t *stack){
 }
 
 inline StackStatus_t stack_valid_index(size_t index, size_t capacity) {
-  if (index >= capacity) {
-    return STACK_OVERFLOW; // Index out of bounds 
-  }else if (index < 0) {
-    return STACK_UNDERFLOW; // Negative index
+  if (index >= capacity || index < 0) {
+    return STACK_OUT_OF_BOUNDS; // Index out of bounds 
   }
   return STACK_OK; // Index is valid
 }
@@ -63,7 +61,7 @@ inline StackStatus_t stack_set_at_index(Stack_t *stack, size_t index, uint8_t va
     return STACK_MEMORY_ERROR; // Stack data pointer is NULL
   }
 
-  StackStatus_t status = stack_valid_index(index, stack->capacity);
+  StackStatus_t status = stack_valid_index(index, stack_get_capacity(stack));
   if (status != STACK_OK) {
     return status; // Invalid index
   }
@@ -81,7 +79,7 @@ inline int stack_get_at_index(Stack_t *stack, size_t index){
     return STACK_MEMORY_ERROR; // Stack data pointer is NULL
   }
 
-  StackStatus_t status = stack_valid_index(index, stack->capacity);
+  StackStatus_t status = stack_valid_index(index, stack_get_capacity(stack));
 
   if (status != STACK_OK) {
     return status; // Invalid index
@@ -100,7 +98,11 @@ StackStatus_t stack_clear(Stack_t *stack){
     return STACK_MEMORY_ERROR; // Stack data pointer is NULL
   }
 
-  for(size_t i = 0; i < stack->size; i++) {
+  // if (stack_get_capacity(stack) <= 0) {
+  //   return STACK_INVALID_CAPACITY; // Stack capacity is less than or equal to 0
+  // }
+
+  for(size_t i = 0; i < stack_get_capacity(stack); i++) {
     stack_set_at_index(stack, i, 0);
 
   }
@@ -118,30 +120,54 @@ StackStatus_t stack_push(Stack_t *stack, uint8_t value){
     return STACK_MEMORY_ERROR; // Stack data pointer is NULL
   }
 
+  // if (stack_get_capacity(stack) <= 0) {
+  //   return STACK_INVALID_CAPACITY; // Stack capacity is less than or equal to 0
+  // }
+  //
+  // if (stack->size < 0) {
+  //   return STACK_UNDERFLOW; // Stack size is negative
+  // } 
+
+  if (stack_get_size(stack) > stack_get_capacity(stack)) {
+    return STACK_OVERFLOW; // Stack size exceeds capacity
+  }
+  
   if(stack_is_full(stack)){
     return STACK_FULL; // Stack is full
   }
   
-  StackStatus_t status = stack_set_at_index(stack, stack->size, value);
+  StackStatus_t status = stack_set_at_index(stack, stack_get_size(stack), value);
 
   stack->size++; // Increment size
   return status;
 }
 
 StackStatus_t stack_pop(Stack_t *stack, uint8_t *value){
-  if (stack == NULL) {
+  if (stack == NULL || value == NULL) {
     return STACK_NULL_POINTER; // Stack pointer is NULL
   }
-  
+
   if (stack->data == NULL) {
     return STACK_MEMORY_ERROR; // Stack data pointer is NULL
+  }
+  //
+  // if(stack_get_capacity(stack) <= 0) {
+  //   return STACK_INVALID_CAPACITY; // Stack capacity is less than or equal to 0
+  // }
+  //
+  // if (get_stack_size(stack) < 0) {
+  //   return STACK_UNDERFLOW; // Stack size is negative
+  // }
+
+  if (stack_get_size(stack) > stack_get_capacity(stack)) {
+    return STACK_OVERFLOW; // Stack size exceeds capacity
   }
 
   if (stack_is_empty(stack)) {
     return STACK_EMPTY; // Stack is empty
   }
 
-  int tmp = stack_get_at_index(stack, stack->size-1);
+  int tmp = stack_get_at_index(stack, stack_get_size(stack)-1);
   if (tmp < 0) {
     return tmp; // Error getting value at index
   }
@@ -151,7 +177,7 @@ StackStatus_t stack_pop(Stack_t *stack, uint8_t *value){
   }
 
   *value = (uint8_t)tmp; // Get the value at the top of the stack
-  tmp = stack_set_at_index(stack, stack->size-1, 0);
+  tmp = stack_set_at_index(stack, stack_get_size(stack)-1, 0);
 
   if (tmp < 0) {
     return tmp; // Error setting value at Index
@@ -163,19 +189,31 @@ StackStatus_t stack_pop(Stack_t *stack, uint8_t *value){
 }
 
 int stack_peek(Stack_t *stack, uint8_t *value){
-  if (stack == NULL) {
+  if (stack == NULL || value == NULL) {
     return STACK_NULL_POINTER; // Stack pointer is NULL
   }
-  
+
   if (stack->data == NULL) {
     return STACK_MEMORY_ERROR; // Stack data pointer is NULL
+  }
+
+  // if (stack_get_capacity(stack) <= 0) {
+  //   return STACK_INVALID_CAPACITY; // Stack capacity is less than or equal to 0
+  // }  
+  //
+  // if (get_stack_size(stack) < 0) {
+  //   return STACK_UNDERFLOW; // Stack size is negative
+  // }
+
+  if (stack_get_size(stack) > stack_get_capacity(stack)) {
+    return STACK_OVERFLOW; // Stack size exceeds capacity
   }
 
   if (stack_is_empty(stack)) {
     return STACK_EMPTY; // Stack is empty
   }
 
-  int tmp = stack_get_at_index(stack, stack->size-1);
+  int tmp = stack_get_at_index(stack, stack_get_size(stack)-1);
   if (tmp < 0) {
     return tmp; // Error getting value at index
   }

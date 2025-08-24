@@ -263,13 +263,16 @@ StackStatus_t stack_print(Stack_t *stack){
 
   printf("Stack size: %lu \n", stack_get_size(stack));
   printf("Stack capacity: %zu\n", stack->capacity);
-  printf("Stack contents: ");
-  
+  printf("Stack contents: [");
+
   for (size_t i = 0; i < stack_get_size(stack); i++) {
-    printf("%d ", stack_get_at_index(stack, i));
+    if (i > 0) {
+      printf(", ");
+    }
+    printf("%d", stack_get_at_index(stack, i));
   }
   
-  printf("\n");
+  printf("]\n");
   return STACK_OK;
 }
 

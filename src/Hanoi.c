@@ -1,19 +1,21 @@
 #include "Hanoi.h"
 #include "stack.h"
 
-Hanoi_t hanoi_init(unsigned int num_disks){
+Hanoi_t hanoi_init(unsigned int num_disks, PrintMoves_t print_moves){
   Hanoi_t hanoi = {0};
 
-  if (num_disks <= 0 || num_disks > UINT32_MAX) {
+  if (num_disks <= 0 || num_disks > MAX_DISKS) {
     return (Hanoi_t){
       .source = {0},
       .target = {0},
       .auxiliary = {0},
-      .num_disks = 0
+      .num_disks = 0,
+      .print_moves = NO_PRINT_MOVES
     }; // Invalid number of num_disks
   } 
 
   hanoi.num_disks = num_disks;
+  hanoi.print_moves = print_moves;
   hanoi.source    = stack_create(num_disks);
   hanoi.target    = stack_create(num_disks);
   hanoi.auxiliary = stack_create(num_disks);
@@ -23,7 +25,8 @@ Hanoi_t hanoi_init(unsigned int num_disks){
       .source = {0},
       .target = {0},
       .auxiliary = {0},
-      .num_disks = 0
+      .num_disks = 0,
+      .print_moves = NO_PRINT_MOVES
     }; // Memory allocation failed
   }
 
@@ -62,7 +65,13 @@ Status_t hanoi_destroy(Hanoi_t *hanoi){
   
 }
 
-Status_t hanoi_move_disk(Stack_t *from, Stack_t *to, const char* from_name, const char* to_name){
+Status_t hanoi_move_disk(Stack_t *from, Stack_t *to, PrintMoves_t print_moves, ...){
+  va_list args;
+  va_start(args, print_moves);
+  const char* from_name = va_arg(args, const char*);
+  const char* to_name = va_arg(args, const char*);
+  va_end(args);
+
   if (from == NULL || to == NULL) {
     return HANOI_NULL_POINTER; // One of the pointers is NULL
   }
@@ -71,8 +80,12 @@ Status_t hanoi_move_disk(Stack_t *from, Stack_t *to, const char* from_name, cons
     return HANOI_MEMORY_ERROR; // One of the stacks' data pointer is NULL
   }
 
-  if (&from == &to) {
+  if (from == to) {
     return HANOI_ILLEGAL_MOVE; // Cannot move disk to the same stack
+  }
+
+  if(stack_is_empty(from) && stack_is_empty(to)) {
+    return HANOI_NO_DISKS_TO_MOVE; // No disks to move from in both stacks
   }
 
   uint8_t disk = 0;
@@ -99,10 +112,13 @@ Status_t hanoi_move_disk(Stack_t *from, Stack_t *to, const char* from_name, cons
 
 
   } else {
-      return hanoi_move_disk(to, from, to_name, from_name);
+      return hanoi_move_disk(to, from, print_moves, to_name, from_name);
   }
 
-  printf("Move disk %u from %s to %s\n", disk, from_name, to_name);
+  if (print_moves == PRINT_MOVES) {
+    printf("Move disk %u from %s to %s\n", disk, from_name, to_name);
+  }
+
   return HANOI_OK;
 }
 
@@ -115,7 +131,7 @@ Status_t hanoi_solve(Hanoi_t *hanoi){
     return HANOI_MEMORY_ERROR; // One of the stacks' data pointer is NULL
   }
 
-  if (hanoi->num_disks <= 0 || hanoi->num_disks > 31) {
+  if (hanoi->num_disks <= 0 || hanoi->num_disks > MAX_DISKS) {
     return HANOI_INVALID_NUM_DISKS; // Invalid number of disks
   }
 
@@ -124,39 +140,49 @@ Status_t hanoi_solve(Hanoi_t *hanoi){
   Stack_t *src = &hanoi->source;
   Stack_t *aux = &hanoi->auxiliary;
   Stack_t *tgt = &hanoi->target;
-
-  char* src_name = "Source";
-  char* aux_name = "Auxiliary";
-  char* tgt_name = "Target";
+  
+  char* src_name = (hanoi->print_moves == PRINT_MOVES) ? "Source" : "";
+  char* aux_name = (hanoi->print_moves == PRINT_MOVES) ? "Auxiliary" : "";
+  char* tgt_name = (hanoi->print_moves == PRINT_MOVES) ? "Target" : "";
 
   if (hanoi->num_disks % 2 == 0) {
     tgt = &hanoi->auxiliary;
     aux = &hanoi->target;
 
-    aux_name = "Target";
-    tgt_name = "Auxiliary";
+    char* temp = tgt_name;
+    tgt_name = aux_name;
+    aux_name = temp;
+
   }
 
-  printf("Total number of moves: %zu\n\n", total_num_moves);
-  printf("Disk moves:\n");
-  printf("--------------------------\n");
+  if (hanoi->print_moves == PRINT_MOVES) {
+    printf("Total number of moves: %zu\n\n", total_num_moves);
+    printf("Disk moves:\n");
+    printf("--------------------------\n");
+  }
+
   for (size_t i = 1; i <= total_num_moves; i++) {
     Status_t status = HANOI_OK;
 
-    printf("Step %zu: ", i);
+    if (hanoi->print_moves == PRINT_MOVES){
+      printf("Step %zu: ", i);
+    }
+
     if (i % 3 == 0) {
-      status = hanoi_move_disk(aux, tgt,aux_name, tgt_name);
+      status = hanoi_move_disk(aux, tgt, hanoi->print_moves, aux_name, tgt_name);
     } else if (i % 3 == 1) {
-      status = hanoi_move_disk(src, tgt, src_name, tgt_name);
+      status = hanoi_move_disk(src, tgt, hanoi->print_moves, src_name, tgt_name);
     } else {
-      status = hanoi_move_disk(src, aux, src_name, aux_name);
+      status = hanoi_move_disk(src, aux, hanoi->print_moves, src_name, aux_name);
     }
 
     if (status != HANOI_OK) {
       return status; // Error moving disk
     }
   }
-  printf("--------------------------\n");
+  if (hanoi->print_moves == PRINT_MOVES){
+    printf("--------------------------\n");
+  }
 
   return HANOI_OK;
 }

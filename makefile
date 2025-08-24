@@ -14,6 +14,8 @@ DIRS += $(BUILD_DIR) $(BIN_DIR)
 dbg ?= 0
 asan ?= 0
 
+num_disks ?= 3
+
 SRC := $(wildcard $(SRC_DIR)/*.c)
 OBJS := $(SRC:src/%.c=build/%.o)
 
@@ -71,7 +73,7 @@ setup:
 	 @sudo apt install -y bear
 
 run : all
-	$(TARGET)
+	$(TARGET) $(num_disks)
 
 debug: all
 	 gdb $(TARGET)

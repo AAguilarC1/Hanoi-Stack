@@ -13,7 +13,7 @@ int main(int argv, char** argc) {
     }
   }
 
-  Hanoi_t hanoi = hanoi_init(num_disks);
+  Hanoi_t hanoi = hanoi_init(num_disks, PRINT_MOVES);
 
   Status_t status = hanoi_solve(&hanoi);
 

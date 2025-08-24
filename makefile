@@ -22,7 +22,7 @@ OBJS := $(SRC:src/%.c=build/%.o)
 TEST_SRC := $(wildcard $(TESTS_DIR)/*.c)
 INCS := $(wildcard $(INC_DIR)/*.h)
 
-CC := clang
+CC := gcc
 CFLAGS := -Wall -Wextra -pedantic -std=gnu17 -D _GNU_SOURCE -D __STDC_WANT_LIB_EXT1__ -fPIC
 
 LDFLAGS := -lm 
